@@ -1,0 +1,7 @@
+{
+  "name": "walkie-talkie-365",
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "angular"
+}
