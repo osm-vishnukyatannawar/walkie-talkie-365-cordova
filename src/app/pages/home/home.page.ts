@@ -5,7 +5,7 @@ import AgoraRTC from 'agora-rtc-sdk-ng';
 import { CommonModule } from '@angular/common';
 import { ToastController } from '@ionic/angular';
 import { Diagnostic } from '@ionic-native/diagnostic/ngx';
-
+declare var AudioToggle: { setAudioMode: (arg0: any) => void; SPEAKER: any; };
 @Component({
   selector: 'app-home',
   templateUrl: './home.page.html',
@@ -43,6 +43,9 @@ export class HomePage implements OnInit {
     private diagnostic: Diagnostic
   ) {
     this.options.token = localStorage.getItem('token') || '';
+    if (AudioToggle) {
+      AudioToggle.setAudioMode('speaker');
+    }
   }
 
   ngOnInit() {
