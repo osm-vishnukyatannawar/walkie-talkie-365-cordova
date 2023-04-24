@@ -4,6 +4,7 @@ import { environment } from 'src/environments/environment';
 import AgoraRTC from 'agora-rtc-sdk-ng';
 import { CommonModule } from '@angular/common';
 import { ToastController } from '@ionic/angular';
+import { Diagnostic } from '@ionic-native/diagnostic/ngx';
 
 @Component({
   selector: 'app-home',
@@ -37,7 +38,10 @@ export class HomePage implements OnInit {
     remoteUid: null,
   };
 
-  constructor(private toastController: ToastController) {
+  constructor(
+    private toastController: ToastController,
+    private diagnostic: Diagnostic
+  ) {
     this.options.token = localStorage.getItem('token') || '';
   }
 
@@ -65,6 +69,18 @@ export class HomePage implements OnInit {
       this.agoraEngine.on('user-unpublished', async (user: { uid: string; }) => {
         await this.presentToast(user.uid + ' has left the channel');
       });
+    });
+  }
+
+  async requestMicrophoneAuthorization() {
+    return this.diagnostic.requestMicrophoneAuthorization().then((status) => {
+      if (status === this.diagnostic.permissionStatus.GRANTED) {
+        return true;
+      } else {
+        return false;
+      }
+    }, (error) => {
+      return error;
     });
   }
 
@@ -106,6 +122,7 @@ export class HomePage implements OnInit {
       this.isConnected = 0;
     } else {
       this.isConnected = -1;
+
       await this.join();
       // Mute audio when user joins channel
       this.channelParameters.localAudioTrack.setEnabled(false);
@@ -124,6 +141,19 @@ export class HomePage implements OnInit {
   }
 
   async join() {
+    console.log('Asking for mic permission');
+    const grantedMicPermission = await this.requestMicrophoneAuthorization();
+
+    console.log(grantedMicPermission);
+    if (!grantedMicPermission) {
+      console.log('Failed to get mic permission');
+      await this.presentToast('Please allow microphone permission to proceed');
+      return;
+    } else {
+      console.log('Got mic permission');
+    }
+
+    console.log('Start joining');
     // Join a channel.
     await this.agoraEngine.join(
       this.options.appId,
