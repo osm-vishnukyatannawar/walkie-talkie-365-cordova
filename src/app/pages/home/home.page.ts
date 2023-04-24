@@ -43,7 +43,8 @@ export class HomePage implements OnInit {
     private diagnostic: Diagnostic
   ) {
     this.options.token = localStorage.getItem('token') || '';
-    if (AudioToggle) {
+
+    if (typeof AudioToggle !== 'undefined') {
       AudioToggle.setAudioMode('speaker');
     }
   }
